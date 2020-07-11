@@ -1,0 +1,30 @@
+{
+  "name": "do-zero-a-nuvem---Cod3r-Udemy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src --out-dir dist --extensions .ts",
+    "start:examples": "npm run build && node ./dist/node-examples/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/israelfcarvalho/do-zero-a-nuvem---Cod3r-Udemy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/israelfcarvalho/do-zero-a-nuvem---Cod3r-Udemy/issues"
+  },
+  "homepage": "https://github.com/israelfcarvalho/do-zero-a-nuvem---Cod3r-Udemy#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.4",
+    "@babel/core": "^7.10.4",
+    "@babel/node": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "typescript": "^3.9.6"
+  }
+}
