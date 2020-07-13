@@ -1,9 +1,6 @@
 import fs from "fs";
 
-export const writeFile = function () {
-  const fileName = process.argv[3];
-  const fileContent = process.argv[4];
-
+export const writeFile = function (fileName?: string, fileContent?: string) {
   if (!!fileName && !!fileContent) {
     fs.writeFile(fileName, fileContent, (error) => {
       if (error) {
@@ -12,5 +9,7 @@ export const writeFile = function () {
 
       console.log(`Arquivo ${fileName} foi salvo com sucesso!`);
     });
+  } else {
+    console.log(`you must pass flags --fileName and --fileContent`);
   }
 };

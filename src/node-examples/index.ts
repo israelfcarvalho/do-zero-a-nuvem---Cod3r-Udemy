@@ -1,5 +1,6 @@
 import { fatorial } from "./fatorial";
 import { writeFile } from "./file";
+import yargs from 'yargs';
 
 console.log(`Executando o script a partir do diretório ${process.cwd()}`);
 
@@ -7,13 +8,19 @@ process.on("exit", () => {
   console.log("script está prestes a terminar");
 });
 
-const scriptOption = process.argv[2];
+const argv = yargs.options({
+  example: {demandOption: true},
+  number: {type: "number"},
+  fileName: {type: 'string'},
+  fileContent: {type: 'string'}
+}).argv;
+const scriptOption = argv.example;
 
 switch (scriptOption) {
   case "fatorial": {
-    const number = parseInt(process.argv[3] || "0");
+    const number = argv.number;
 
-    if (process.argv[3] && !isNaN(number)) {
+    if (number) {
       console.log(`O fatorial de ${number} = ${fatorial(number)}`);
     } else {
       console.log("nenhum numero foi passado para o calculo do fatorial!");
@@ -22,7 +29,7 @@ switch (scriptOption) {
   break;
 
   case "file": {
-      writeFile();
+      writeFile(argv.fileName, argv.fileContent);
   }
   break;
 
