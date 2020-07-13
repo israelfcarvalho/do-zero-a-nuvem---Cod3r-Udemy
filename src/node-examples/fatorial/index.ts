@@ -1,4 +1,4 @@
-export const fatorial = function(num: number) {
+export const fatorial = function(num: number): number {
     if(num === 0) {
         return 1;
     }
