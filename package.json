@@ -1,8 +1,8 @@
 {
   "name": "do-zero-a-nuvem---Cod3r-Udemy",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Project to study and implement the lesson on 'Do Zero a Nuvem' sourse of Cod3r on Udemy",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src --out-dir dist --extensions .ts",
