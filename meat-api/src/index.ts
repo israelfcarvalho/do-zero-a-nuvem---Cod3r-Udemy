@@ -4,8 +4,9 @@ const app = express();
 const port = 3000;
 
 const errorPlugin: ErrorRequestHandler = (error, req, res, next) => {
+
+    res.status(error.status)
     res.json(error);
-    console.log('error')
 
     return next(false);
 }
@@ -17,11 +18,11 @@ const denyPostamanMiddleware = (
 ) => {
   const userAgent = req.headers["user-agent"];
 
-  if (userAgent && userAgent.includes("PostmanRuntime/7.24.1")) {
+  if (userAgent && userAgent.includes("PostmanRuntime/7.26.1")) {
 
     const error: any = {
-        statusCode: 400,
-        message: 'Postaman is not authorized to make requests to this API.'
+        status: 400,
+        message: 'Postman is not authorized to make requests to this API.'
     }
 
     return next(error);
@@ -30,9 +31,8 @@ const denyPostamanMiddleware = (
   return next();
 };
 
-app.use(errorPlugin);
-
 app.use(denyPostamanMiddleware);
+app.use(errorPlugin);
 
 app.get("/info", (req: Request, res: Response, next: NextFunction) => {
   res.setHeader("content-type", "application/json");
