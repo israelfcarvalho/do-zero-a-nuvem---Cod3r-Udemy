@@ -1,4 +1,5 @@
-import express, { Application} from "express";
+import express, { Application } from "express";
+import bodyParser from 'body-parser';
 import userRoute from '../users/users.route';
 import {environment} from '../common/environment';
 import mongoose from "mongoose";
@@ -13,6 +14,8 @@ export class Server {
   initRoutes(): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
+        this.application.use(bodyParser.urlencoded({extended: false}))
+        this.application.use(bodyParser.json())
         this.application.use(userRoute)
 
         this.application.listen(environment.server.port, () => {
@@ -31,6 +34,8 @@ export class Server {
       pass: environment.db.password,
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      useCreateIndex: true,
+      autoIndex: true
     })
   }
 

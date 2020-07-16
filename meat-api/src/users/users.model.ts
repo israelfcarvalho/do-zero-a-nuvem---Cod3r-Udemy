@@ -1,21 +1,24 @@
-interface IUser {
-    id: number,
+import mongoose from 'mongoose';
+
+export interface User extends mongoose.Document {
     name: string,
-    email: string
+    email: string,
+    password: string
 }
 
-const users: Array<IUser> = [
-    {id: 1, name: 'Peter Parker', email: 'peter@marvel.com'},
-    {id: 2, name: 'Bruce Wayne', email: 'bruce@dc.com'}
-
-]
-
-export default class User {
-    static findAll(): Promise<Array<IUser>>{
-        return Promise.resolve(users);
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+    },
+    email: {
+        type: String,
+        unique: true
+    },
+    password: {
+        type: String,
+        select: false,
+        post: (doc: User) => {console.log()}
     }
+})
 
-    static findById(id: number): Promise<Array<IUser>> {
-        return Promise.resolve(users.filter(user => user.id === id))
-    }
-}
+export default mongoose.model<User>('user', userSchema);
