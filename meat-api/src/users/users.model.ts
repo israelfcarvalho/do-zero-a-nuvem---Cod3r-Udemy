@@ -16,9 +16,12 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        select: false,
-        post: (doc: User) => {console.log()}
+        select: false
     }
+})
+
+userSchema.post('save', function(this: Partial<User>, user: User){
+    this.password = undefined;
 })
 
 export default mongoose.model<User>('user', userSchema);

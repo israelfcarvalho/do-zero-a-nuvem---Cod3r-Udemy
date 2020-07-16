@@ -27,12 +27,7 @@ router.post('/users', (req: Request, res: Response, next: NextFunction) => {
 
     user.save()
     .then(user => {
-        const _user = user.toObject();
-        delete _user.password;
-
-        console.log({user});
-
-        res.json(_user);
+        res.json(user);
     })
     .catch(error => {
         console.log({error});
