@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Query } from 'mongoose';
 
 export interface User extends mongoose.Document {
     name: string,
@@ -10,7 +10,7 @@ export interface User extends mongoose.Document {
 const userSchema = new mongoose.Schema<User>({
     name: {
         type: String,
-        required: true
+        required: [true, 'name is required!']
     },
     email: {
         type: String,
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema<User>({
     password: {
         type: String,
         select: false,
-        required: true,
+        required: [true, 'password is required!'],
         validate: {
             validator: (v: string) => {return v.length > 4},
             message: 'Password needs to have more than 6 caracters!'
@@ -48,7 +48,7 @@ userSchema.methods.getPutUpdate = function(this: User){
     }
 }
 
-userSchema.post('save', function(this: Partial<User>, user: User){
+userSchema.post('save', function(this: Partial<User>){
     this.password = undefined;
 });
 
