@@ -1,5 +1,8 @@
 import {Router, Request, Response, NextFunction} from 'express';
+import {CastError} from 'mongoose';
+
 import User from './users.model';
+import { json } from 'body-parser';
 
 const router = Router();
 
@@ -30,8 +33,32 @@ router.post('/users', (req: Request, res: Response, next: NextFunction) => {
         res.json(user);
     })
     .catch(error => {
-        console.log({error});
+        console.error({error});
         res.json({message: 'Something whent wrong!'})
+    })
+})
+
+router.put('/users/:id', (req: Request, res: Response, next: NextFunction) => {
+    const _id = req.params.id;
+    const user = new User({_id, ...req.body});
+    
+    const update = user.getPutUpdate();
+
+    User.findByIdAndUpdate(
+        {_id},
+        update,
+        {new: true, useFindAndModify: false, multipleCastError: true, runValidators: true}
+    )
+    .then(value => {
+        if(value) {
+            res.json(value)
+        } else {
+            res.sendStatus(404);
+        }
+    })
+    .catch(error => {
+        console.error({error});
+        res.json({message: error.message});
     })
 })
 
