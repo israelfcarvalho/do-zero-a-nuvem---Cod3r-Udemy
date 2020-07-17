@@ -58,7 +58,15 @@ router.put('/users/:id', (req: Request, res: Response, next: NextFunction) => {
     })
     .catch(error => {
         console.error({error});
-        res.json({message: error.message});
+        const errors = error.errors;
+        const errorKeys = Object.keys(error.errors)
+        const errorObject: any = {error: {}}
+        
+        errorKeys.forEach(key => {
+            errorObject.error[key] = errors[key].properties.message;
+        })
+
+        res.json(errorObject);
     })
 })
 

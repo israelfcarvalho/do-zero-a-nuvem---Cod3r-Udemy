@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema<User>({
         required: true,
         validate: {
             validator: (v: string) => {return v.length > 4},
-            message: 'Password needs have more than 6 caracters!'
+            message: 'Password needs to have more than 6 caracters!'
         },
     },
 })
