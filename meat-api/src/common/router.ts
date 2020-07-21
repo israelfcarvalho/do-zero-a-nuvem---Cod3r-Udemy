@@ -1,5 +1,4 @@
 import { NextFunction, Response, Request, ErrorRequestHandler } from "express";
-import { Error } from "mongoose";
 
 import { User } from "../users/users.model";
 
@@ -42,7 +41,6 @@ const mongoErrorParse = function (error: any) {
 };
 
 const parseError = function (error: any) {
-  console.log({ name: error.name });
   switch (error.name) {
     case "ValidationError": {
       return validationErrorParse(error);
