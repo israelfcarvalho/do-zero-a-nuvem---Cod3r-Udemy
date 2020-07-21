@@ -1,8 +1,10 @@
 import express, { Application } from "express";
 import bodyParser from 'body-parser';
+import mongoose from "mongoose";
+
 import userRoute from '../users/users.route';
 import {environment} from '../common/environment';
-import mongoose from "mongoose";
+import {errorMiddleware} from '../common/router';
 
 export class Server {
   constructor() {
@@ -17,6 +19,8 @@ export class Server {
         this.application.use(bodyParser.urlencoded({extended: false}))
         this.application.use(bodyParser.json())
         this.application.use(userRoute)
+
+        this.application.use(errorMiddleware);
 
         this.application.listen(environment.server.port, () => {
           resolve(this.application);

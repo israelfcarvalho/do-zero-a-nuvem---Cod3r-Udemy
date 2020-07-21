@@ -1,19 +1,21 @@
 import {Router, Request, Response, NextFunction} from 'express';
 
-import {render} from '../common/router';
+import {render, errorMiddleware} from '../common/router';
 import User from './users.model';
 
 const router = Router();
 
+router.use(errorMiddleware)
+
 router.get('/users', (req: Request, res: Response, next: NextFunction) => {
-    User.find().then(render(res, next))
+    User.find().then(render(res, next)).catch(next)
 });
 
 
 router.get('/users/:id', (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
 
-    User.findById(id).then(render(res, next))
+    User.findById(id).then(render(res, next)).catch(error => next(error))
 })
 
 router.post('/users', (req: Request, res: Response, next: NextFunction) => {
@@ -21,19 +23,7 @@ router.post('/users', (req: Request, res: Response, next: NextFunction) => {
 
     user.save()
     .then(render(res, next))
-    .catch(error => {
-        console.error({error});
-
-        const errors = error.errors;
-        const errorKeys = Object.keys(error.errors)
-        const errorObject: any = {error: {}}
-        
-        errorKeys.forEach(key => {
-            errorObject.error[key] = errors[key].properties.message;
-        })
-
-        res.json(errorObject);
-    })
+    .catch(error => next(error))
 })
 
 router.put('/users/:id', (req: Request, res: Response, next: NextFunction) => {
@@ -48,18 +38,7 @@ router.put('/users/:id', (req: Request, res: Response, next: NextFunction) => {
         {new: true, useFindAndModify: false, multipleCastError: true, runValidators: true}
     )
     .then(render(res, next))
-    .catch(error => {
-        console.error({error});
-        const errors = error.errors;
-        const errorKeys = Object.keys(error.errors)
-        const errorObject: any = {error: {}}
-        
-        errorKeys.forEach(key => {
-            errorObject.error[key] = errors[key].properties.message;
-        })
-
-        res.json(errorObject);
-    })
+    .catch(error => next(error));
 })
 
 router.patch('/users/:id', (req: Request, res: Response, next: NextFunction) => {
@@ -72,18 +51,7 @@ router.patch('/users/:id', (req: Request, res: Response, next: NextFunction) => 
         {new: true, useFindAndModify: false, runValidators: true, multipleCastError: true }
     )
     .then(render(res, next))
-    .catch(error => {
-        console.error({error});
-        const errors = error.errors;
-        const errorKeys = Object.keys(error.errors)
-        const errorObject: any = {error: {}}
-        
-        errorKeys.forEach(key => {
-            errorObject.error[key] = errors[key].properties.message;
-        })
-
-        res.json(errorObject);
-    })
+    .catch(error => next(error));
 });
 
 router.delete('/users/:id', (req: Request, res: Response, next: NextFunction) => {
@@ -95,11 +63,7 @@ router.delete('/users/:id', (req: Request, res: Response, next: NextFunction) =>
         } else {
             res.status(404).json({message: 'User não encontrado!'})
         }
-    }).catch(error => {
-        console.log({error})
-
-        res.sendStatus(404);
-    })
+    }).catch(error => next(error));
 })
 
 export default router;
