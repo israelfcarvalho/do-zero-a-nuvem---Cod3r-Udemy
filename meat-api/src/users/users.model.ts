@@ -1,30 +1,32 @@
 import mongoose from "mongoose";
+import {
+  emailValidator,
+  valueLengthValidator,
+  GENDERS,
+  validatorGender,
+  validatorCPF,
+} from "../common/validators";
 
 export interface User extends mongoose.Document {
   name: string;
   email: string;
   password: string;
+  cpf: string;
   getPutUpdate: Function;
 }
-
-const GENDERS = ["Female", "Male"];
 
 const userSchema = new mongoose.Schema<User>({
   name: {
     type: String,
-    required: [true, "name is required!"],
+    required: [true, "Name is required!"],
   },
   email: {
     type: String,
     unique: true,
     validate: {
-      validator: (value: string) => {
-        return RegExp(
-          /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        ).test(value);
-      },
-      message: (error: any) => {
-        return `Email '${error.value}' invalid!`;
+      validator: emailValidator,
+      message: (props: any) => {
+        return `Email '${props.value}' invalid!`;
       },
     },
   },
@@ -33,22 +35,25 @@ const userSchema = new mongoose.Schema<User>({
     select: false,
     required: [true, "password is required!"],
     validate: {
-      validator: (v: string) => {
-        return v.length > 4;
-      },
+      validator: valueLengthValidator(6),
       message: "Password needs to have more than 6 caracters!",
     },
   },
   gender: {
     type: String,
+    validate: validatorGender,
+    message: (props: any) => {
+      return `Invalid gender '${props.value}'. Should be one of [${GENDERS.join(
+        ", "
+      )}]`;
+    },
+  },
+  cpf: {
+    type: String,
     validate: {
-      validator: (value: string) => {
-        return GENDERS.includes(value);
-      },
-      message: (error: any) => {
-        return `Invalid gender '${
-          error.value
-        }'. Should be one of [${GENDERS.join(", ")}]`;
+      validator: validatorCPF,
+      message: (props: any) => {
+        return `Cpf '${props.value}' invalid!`;
       },
     },
   },
