@@ -1,4 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { Query } from "mongoose";
+import bcrypt from "bcrypt";
+
+import { environment } from "../common/environment";
+import { hashPassword } from "../common/utils";
 import {
   emailValidator,
   valueLengthValidator,
@@ -23,6 +27,7 @@ const userSchema = new mongoose.Schema<User>({
   email: {
     type: String,
     unique: true,
+    required: [true, "Email is required!"],
     validate: {
       validator: emailValidator,
       message: (props: any) => {
@@ -80,8 +85,26 @@ userSchema.methods.getPutUpdate = function (this: User) {
   };
 };
 
-userSchema.post("save", function (this: Partial<User>) {
+userSchema.pre("save", function (this: User, next) {
+  if (this.isModified("password")) {
+    return hashPassword(this, next);
+  }
+
+  next();
+});
+
+userSchema.pre("findOneAndUpdate", function (this: Query<User>, next) {
+  if (this.getUpdate().password) {
+    return hashPassword(this.getUpdate(), next);
+  }
+
+  next();
+});
+
+userSchema.post("save", function (this: Partial<User>, doc, next) {
   this.password = undefined;
+
+  next();
 });
 
 export default mongoose.model<User>("user", userSchema);
