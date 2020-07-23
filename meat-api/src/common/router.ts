@@ -1,70 +1,85 @@
-import { NextFunction, Response, Request, ErrorRequestHandler } from "express";
+import {
+  Router as expressRouter,
+  NextFunction,
+  Response,
+  Request,
+  RouterOptions,
+} from "express";
+import { Document } from "mongoose";
 
-import { User } from "../users/users.model";
+export default abstract class Router {
+  protected _router: expressRouter;
 
-type Document = User | User[] | null | undefined;
+  constructor(options?: RouterOptions) {
+    this._router = expressRouter(options);
 
-export const render = function (res: Response, next: NextFunction) {
-  return (document: Document) => {
-    if (document) {
-      res.json(document);
-    } else {
-      res.send(404);
-    }
+    this.applyRoutes = this.applyRoutes.bind(this);
+  }
 
-    return next();
-  };
-};
+  abstract applyRoutes(): void;
 
-const validationErrorParse = function (error: any) {
-  const errors = error.errors;
-  const errorKeys = Object.keys(error.errors);
-  const errorObject: any = { error: {} };
+  private validationErrorParse(error: any) {
+    const errors = error.errors;
+    const errorKeys = Object.keys(error.errors);
+    const errorObject: any = { error: {} };
 
-  errorKeys.forEach((key) => {
-    errorObject.error[key] = errors[key].properties.message;
-  });
+    errorKeys.forEach((key) => {
+      errorObject.error[key] = errors[key].properties.message;
+    });
 
-  return {
-    error: errorObject,
-    status: 400,
-  };
-};
+    return {
+      error: errorObject,
+      status: 400,
+    };
+  }
 
-const mongoErrorParse = function (error: any) {
-  const status = error.code === 11000 ? 400 : 500;
+  private mongoErrorParse(error: any) {
+    const status = error.code === 11000 ? 400 : 500;
 
-  return {
-    error: error.message,
-    status,
-  };
-};
+    return {
+      error: error.message,
+      status,
+    };
+  }
 
-const parseError = function (error: any) {
-  switch (error.name) {
-    case "ValidationError": {
-      return validationErrorParse(error);
-    }
+  private parseError(error: any) {
+    switch (error.name) {
+      case "ValidationError": {
+        return this.validationErrorParse(error);
+      }
 
-    case "MongoError": {
-      return mongoErrorParse(error);
-    }
+      case "MongoError": {
+        return this.mongoErrorParse(error);
+      }
 
-    default: {
-      return { error: "Something went wrong!!", status: 500 };
+      default: {
+        return { error: "Something went wrong!!", status: 500 };
+      }
     }
   }
-};
 
-export const errorMiddleware: ErrorRequestHandler = function (
-  error: any,
-  req: Request,
-  res: Response,
+  protected errorMiddleware(
+    error: any,
+    req: Request,
+    res: Response,
 
-  next: NextFunction
-) {
-  console.error({ error });
-  const parsedError = parseError(error);
+    next: NextFunction
+  ) {
+    console.error({ error });
+    const parsedError = this.parseError(error);
 
-  res.status(parsedError.status).json(parsedError.error);
-};
+    res.status(parsedError.status).json(parsedError.error);
+  }
+
+  protected render(res: Response, next: NextFunction) {
+    return (document: Document | Document[] | null) => {
+      if (document) {
+        res.json(document);
+      } else {
+        res.send(404);
+      }
+
+      return next();
+    };
+  }
+}

@@ -1,7 +1,5 @@
 import mongoose, { Query } from "mongoose";
-import bcrypt from "bcrypt";
 
-import { environment } from "../common/environment";
 import { hashPassword } from "../common/utils";
 import {
   emailValidator,
