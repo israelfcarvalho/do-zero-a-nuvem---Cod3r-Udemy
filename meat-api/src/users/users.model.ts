@@ -9,7 +9,7 @@ import {
   validatorCPF,
 } from "../common/validators";
 
-export interface User extends mongoose.Document {
+export interface UserDocument extends mongoose.Document {
   name: string;
   email: string;
   password: string;
@@ -17,7 +17,7 @@ export interface User extends mongoose.Document {
   getPutUpdate: Function;
 }
 
-const userSchema = new mongoose.Schema<User>({
+const userSchema = new mongoose.Schema<UserDocument>({
   name: {
     type: String,
     required: [true, "Name is required!"],
@@ -62,28 +62,7 @@ const userSchema = new mongoose.Schema<User>({
   },
 });
 
-userSchema.methods.getPutUpdate = function (this: User) {
-  const schemaFields = Object.keys(this.schema.obj);
-  const unset: any = {};
-  const update: any = { _id: this._id };
-
-  schemaFields.forEach((schemaField) => {
-    const isSet = !!this.get(schemaField);
-
-    if (isSet) {
-      update[schemaField] = this.get(schemaField);
-    } else {
-      unset[schemaField] = "";
-    }
-  });
-
-  return {
-    $unset: unset,
-    ...update,
-  };
-};
-
-userSchema.pre("save", function (this: User, next) {
+userSchema.pre("save", function (this: UserDocument, next) {
   if (this.isModified("password")) {
     return hashPassword(this, next);
   }
@@ -91,7 +70,7 @@ userSchema.pre("save", function (this: User, next) {
   next();
 });
 
-userSchema.pre("findOneAndUpdate", function (this: Query<User>, next) {
+userSchema.pre("findOneAndUpdate", function (this: Query<UserDocument>, next) {
   if (this.getUpdate().password) {
     return hashPassword(this.getUpdate(), next);
   }
@@ -99,10 +78,10 @@ userSchema.pre("findOneAndUpdate", function (this: Query<User>, next) {
   next();
 });
 
-userSchema.post("save", function (this: Partial<User>, doc, next) {
+userSchema.post("save", function (this: Partial<UserDocument>, doc, next) {
   this.password = undefined;
 
   next();
 });
 
-export default mongoose.model<User>("user", userSchema);
+export default mongoose.model<UserDocument>("user", userSchema);

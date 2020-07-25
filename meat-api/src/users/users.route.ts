@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction, RouterOptions } from "express";
+import { RouterOptions } from "express";
 
-import Router from "../common/router";
-import User from "./users.model";
+import ModelRouter from "../common/modelRouter";
+import User, { UserDocument } from "./users.model";
 
-export default class UserRoute extends Router {
+export default class UserRoute extends ModelRouter<UserDocument> {
   constructor(options?: RouterOptions) {
-    super(options);
+    super(User, options);
 
     this.applyRoutes();
   }
@@ -14,90 +14,21 @@ export default class UserRoute extends Router {
     return this._router;
   }
 
-  applyRoutes() {
+  protected applyRoutes() {
     this._router.use(this.errorMiddleware);
 
-    this._router.get(
-      "/users",
-      (req: Request, res: Response, next: NextFunction) => {
-        User.find().then(this.render(res, next)).catch(next);
-      }
-    );
+    this._router.param("id", this.idValidator);
 
-    this._router.get(
-      "/users/:id",
-      (req: Request, res: Response, next: NextFunction) => {
-        const id = req.params.id;
+    this._router.get("/users", this.findAll);
 
-        User.findById(id)
-          .then(this.render(res, next))
-          .catch((error) => next(error));
-      }
-    );
+    this._router.get("/users/:id", this.findById);
 
-    this._router.post(
-      "/users",
-      (req: Request, res: Response, next: NextFunction) => {
-        const user = new User(req.body);
+    this._router.post("/users", this.save);
 
-        user
-          .save()
-          .then(this.render(res, next))
-          .catch((error) => next(error));
-      }
-    );
+    this._router.put("/users/:id", this.replace);
 
-    this._router.put(
-      "/users/:id",
-      (req: Request, res: Response, next: NextFunction) => {
-        const _id = req.params.id;
-        const user = new User({ _id, ...req.body });
+    this._router.patch("/users/:id", this.update);
 
-        const update = user.getPutUpdate();
-
-        User.findByIdAndUpdate(_id, update, {
-          new: true,
-          useFindAndModify: false,
-          multipleCastError: true,
-          runValidators: true,
-        })
-          .then(this.render(res, next))
-          .catch((error) => next(error));
-      }
-    );
-
-    this._router.patch(
-      "/users/:id",
-      (req: Request, res: Response, next: NextFunction) => {
-        const _id = req.params.id;
-        const user = new User({ _id, ...req.body });
-
-        User.findByIdAndUpdate(_id, user, {
-          new: true,
-          useFindAndModify: false,
-          runValidators: true,
-          multipleCastError: true,
-        })
-          .then(this.render(res, next))
-          .catch((error) => next(error));
-      }
-    );
-
-    this._router.delete(
-      "/users/:id",
-      (req: Request, res: Response, next: NextFunction) => {
-        const _id = req.params.id;
-
-        User.remove({ _id })
-          .then((result) => {
-            if (result.deletedCount) {
-              res.json({ message: "User removido com sucesso!" });
-            } else {
-              res.status(404).json({ message: "User não encontrado!" });
-            }
-          })
-          .catch((error) => next(error));
-      }
-    );
+    this._router.delete("/users/:id", this.delete);
   }
 }

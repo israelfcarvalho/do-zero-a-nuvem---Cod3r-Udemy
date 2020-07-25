@@ -7,7 +7,7 @@ import {
 } from "express";
 import { Document } from "mongoose";
 
-export default abstract class Router {
+abstract class Router {
   protected _router: expressRouter;
 
   constructor(options?: RouterOptions) {
@@ -16,7 +16,7 @@ export default abstract class Router {
     this.applyRoutes = this.applyRoutes.bind(this);
   }
 
-  abstract applyRoutes(): void;
+  protected abstract applyRoutes(): void;
 
   private validationErrorParse(error: any) {
     const errors = error.errors;
@@ -83,3 +83,5 @@ export default abstract class Router {
     };
   }
 }
+
+export default Router;
