@@ -15,8 +15,6 @@ export default class UserRoute extends ModelRouter<UserDocument> {
   }
 
   protected applyRoutes() {
-    this._router.use(this.errorMiddleware);
-
     this._router.param("id", this.idValidator);
 
     this._router.get("/users", this.findAll);
@@ -30,5 +28,7 @@ export default class UserRoute extends ModelRouter<UserDocument> {
     this._router.patch("/users/:id", this.update);
 
     this._router.delete("/users/:id", this.delete);
+
+    this._router.use(this.errorMiddleware);
   }
 }

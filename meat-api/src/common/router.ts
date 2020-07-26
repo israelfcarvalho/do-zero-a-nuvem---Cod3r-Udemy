@@ -42,7 +42,7 @@ abstract class Router {
     };
   }
 
-  private parseError(error: any) {
+  private parseError = (error: any) => {
     switch (error.name) {
       case "ValidationError": {
         return this.validationErrorParse(error);
@@ -56,20 +56,20 @@ abstract class Router {
         return { error: "Something went wrong!!", status: 500 };
       }
     }
-  }
+  };
 
-  protected errorMiddleware(
+  protected errorMiddleware = (
     error: any,
     req: Request,
     res: Response,
 
     next: NextFunction
-  ) {
+  ) => {
     console.error({ error });
     const parsedError = this.parseError(error);
 
     res.status(parsedError.status).json(parsedError.error);
-  }
+  };
 
   protected render(res: Response, next: NextFunction) {
     return (document: Document | Document[] | null) => {

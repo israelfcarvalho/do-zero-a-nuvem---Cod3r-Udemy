@@ -33,7 +33,7 @@ const restaurantSchema = new mongoose.Schema<RestaurantDocument>({
   },
 });
 
-export const Restaurant = mongoose.model<RestaurantDocument>(
+export default mongoose.model<RestaurantDocument>(
   "restaurant",
   restaurantSchema
 );

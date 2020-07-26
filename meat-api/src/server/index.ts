@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 
 import userRoute from "../users/users.route";
 import { environment } from "../common/environment";
+import RestaurantRoute from "../restaurants/restaurants.route";
+
+const routes = [new userRoute().router, new RestaurantRoute().router];
 
 export class Server {
   constructor() {
@@ -17,7 +20,9 @@ export class Server {
       try {
         this.application.use(bodyParser.urlencoded({ extended: false }));
         this.application.use(bodyParser.json());
-        this.application.use(new userRoute().router);
+        routes.forEach((route) => {
+          this.application.use(route);
+        });
 
         this.application.listen(environment.server.port, () => {
           resolve(this.application);
