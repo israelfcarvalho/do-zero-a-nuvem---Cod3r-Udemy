@@ -1,5 +1,5 @@
 import Router from "./router";
-import { Model, Document, isValidObjectId } from "mongoose";
+import { Model, Document, isValidObjectId, DocumentQuery } from "mongoose";
 import { RouterOptions, NextFunction, Request, Response } from "express";
 
 abstract class ModelRouter<T extends Document> extends Router {
@@ -9,6 +9,10 @@ abstract class ModelRouter<T extends Document> extends Router {
     super(options);
 
     this.model = model;
+  }
+
+  protected prepareOne(query: DocumentQuery<T | null, T, {}>) {
+    return query;
   }
 
   protected idValidator(req: Request, res: Response, next: NextFunction) {
@@ -49,8 +53,7 @@ abstract class ModelRouter<T extends Document> extends Router {
   protected findById = (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
 
-    this.model
-      .findById(id)
+    this.prepareOne(this.model.findById(id))
       .then(this.render(res, next))
       .catch((error) => next(error));
   };

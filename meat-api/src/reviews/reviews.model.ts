@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Query } from "mongoose";
 import { valueLengthValidator } from "../common/validators";
 import restaurantsModel, {
   RestaurantDocument,
@@ -42,31 +42,34 @@ const reviewSchema = new mongoose.Schema<ReviewDocument>({
   },
 });
 
-reviewSchema.pre("validate", async function(this: ReviewDocument, next) {
-  const {restaurant, user} = this;
+reviewSchema.pre("validate", async function (this: ReviewDocument, next) {
+  const { restaurant, user } = this;
 
-  if(mongoose.isValidObjectId(restaurant) && mongoose.isValidObjectId(user)){
+  if (mongoose.isValidObjectId(restaurant) && mongoose.isValidObjectId(user)) {
     try {
       const restaurantDocument = await restaurantsModel.findById(restaurant);
       const userDocument = await usersModel.findById(user);
-      const errors: any = {name: 'ValidationError', message: []};
+      const errors: any = { name: "ValidationError", message: [] };
 
-      if(!restaurantDocument){
-        this.invalidate('restaurant', `Restaurant with ID '${restaurant}' does not exists`, restaurant);
+      if (!restaurantDocument) {
+        this.invalidate(
+          "restaurant",
+          `Restaurant with ID '${restaurant}' does not exists`,
+          restaurant
+        );
       }
 
-      if(!userDocument){
-        this.invalidate('user', `User with ID '${user}' does not exists`, user);
+      if (!userDocument) {
+        this.invalidate("user", `User with ID '${user}' does not exists`, user);
       }
 
-      next()
-
+      next();
     } catch (error) {
       next(error);
     }
   } else {
     next();
   }
-})
+});
 
 export default mongoose.model<ReviewDocument>("review", reviewSchema);

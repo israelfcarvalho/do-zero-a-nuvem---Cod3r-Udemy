@@ -4,6 +4,7 @@ import ModelRouter from "../common/modelRouter";
 import Review, { ReviewDocument } from "./reviews.model";
 import Restaurant from "../restaurants/restaurants.model";
 import User from "../users/users.model";
+import { DocumentQuery } from "mongoose";
 
 class ReviewsRoute extends ModelRouter<ReviewDocument> {
   constructor(options?: RouterOptions) {
@@ -14,6 +15,15 @@ class ReviewsRoute extends ModelRouter<ReviewDocument> {
 
   get router() {
     return this._router;
+  }
+
+  protected prepareOne(
+    query: DocumentQuery<ReviewDocument | null, ReviewDocument, {}>
+  ) {
+    console.log("ReviewsRoute");
+    return query
+      .populate("restaurant", "-_id -__v")
+      .populate("user", "-_id -__v");
   }
 
   protected applyRoutes() {
