@@ -24,7 +24,11 @@ abstract class Router {
     const errorObject: any = { error: {} };
 
     errorKeys.forEach((key) => {
-      errorObject.error[key] = errors[key].properties.message;
+      if (errors[key].name === "ValidatorError") {
+        errorObject.error[key] = errors[key].properties.message;
+      } else {
+        errorObject.error[key] = errors[key].message;
+      }
     });
 
     return {

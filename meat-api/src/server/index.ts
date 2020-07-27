@@ -2,11 +2,16 @@ import express, { Application } from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 
-import userRoute from "../users/users.route";
 import { environment } from "../common/environment";
-import RestaurantRoute from "../restaurants/restaurants.route";
+import usersRoute from "../users/users.route";
+import RestaurantsRoute from "../restaurants/restaurants.route";
+import ReviewsRoute from "../reviews/reviews.route";
 
-const routes = [new userRoute().router, new RestaurantRoute().router];
+const routes = [
+  new usersRoute().router,
+  new RestaurantsRoute().router,
+  new ReviewsRoute().router,
+];
 
 export class Server {
   constructor() {

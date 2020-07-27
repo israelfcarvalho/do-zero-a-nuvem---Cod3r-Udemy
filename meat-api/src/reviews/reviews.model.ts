@@ -42,4 +42,31 @@ const reviewSchema = new mongoose.Schema<ReviewDocument>({
   },
 });
 
+reviewSchema.pre("validate", async function(this: ReviewDocument, next) {
+  const {restaurant, user} = this;
+
+  if(mongoose.isValidObjectId(restaurant) && mongoose.isValidObjectId(user)){
+    try {
+      const restaurantDocument = await restaurantsModel.findById(restaurant);
+      const userDocument = await usersModel.findById(user);
+      const errors: any = {name: 'ValidationError', message: []};
+
+      if(!restaurantDocument){
+        this.invalidate('restaurant', `Restaurant with ID '${restaurant}' does not exists`, restaurant);
+      }
+
+      if(!userDocument){
+        this.invalidate('user', `User with ID '${user}' does not exists`, user);
+      }
+
+      next()
+
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    next();
+  }
+})
+
 export default mongoose.model<ReviewDocument>("review", reviewSchema);
