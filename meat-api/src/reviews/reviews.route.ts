@@ -20,7 +20,6 @@ class ReviewsRoute extends ModelRouter<ReviewDocument> {
   protected prepareOne(
     query: DocumentQuery<ReviewDocument | null, ReviewDocument, {}>
   ) {
-    console.log("ReviewsRoute");
     return query
       .populate("restaurant", "-_id -__v")
       .populate("user", "-_id -__v");
