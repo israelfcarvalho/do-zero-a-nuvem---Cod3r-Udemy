@@ -1,4 +1,4 @@
-import { RouterOptions } from "express";
+import { RouterOptions, Request, Response, NextFunction } from "express";
 
 import ModelRouter from "../common/modelRouter";
 import User, { UserDocument } from "./users.model";
@@ -14,10 +14,22 @@ export default class UserRoute extends ModelRouter<UserDocument> {
     return this._router;
   }
 
+  findByEmail = (req: Request, res: Response, next: NextFunction) => {
+    const email = <string>req.query.email;
+
+    console.log({ email });
+
+    if (email) {
+      User.find({ email }).then(this.render(res, next)).catch(next);
+    } else {
+      next();
+    }
+  };
+
   protected applyRoutes() {
     this._router.param("id", this.idValidator);
 
-    this._router.get("/users", this.findAll);
+    this._router.get("/users", [this.findByEmail, this.findAll]);
 
     this._router.get("/users/:id", this.findById);
 

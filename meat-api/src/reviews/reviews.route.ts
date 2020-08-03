@@ -2,8 +2,6 @@ import { RouterOptions, Request, Response, NextFunction } from "express";
 
 import ModelRouter from "../common/modelRouter";
 import Review, { ReviewDocument } from "./reviews.model";
-import Restaurant from "../restaurants/restaurants.model";
-import User from "../users/users.model";
 import { DocumentQuery } from "mongoose";
 
 class ReviewsRoute extends ModelRouter<ReviewDocument> {

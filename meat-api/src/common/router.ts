@@ -82,8 +82,6 @@ abstract class Router {
       } else {
         res.send(404);
       }
-
-      return next();
     };
   }
 }
