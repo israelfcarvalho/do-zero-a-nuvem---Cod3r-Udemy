@@ -1,4 +1,10 @@
-import mongoose, { Query } from "mongoose";
+import mongoose, {
+  Query,
+  Model,
+  DocumentQuery,
+  Document,
+  model,
+} from "mongoose";
 
 import { hashPassword } from "../common/utils";
 import {
@@ -14,7 +20,14 @@ export interface UserDocument extends mongoose.Document {
   email: string;
   password: string;
   cpf: string;
-  getPutUpdate: Function;
+  findByEmail: Function;
+}
+
+export interface UserModel extends mongoose.Model<UserDocument> {
+  findByEmail(
+    this: Model<UserDocument>,
+    search: string
+  ): DocumentQuery<UserDocument | null, UserDocument, {}>;
 }
 
 const userSchema = new mongoose.Schema<UserDocument>({
@@ -62,6 +75,13 @@ const userSchema = new mongoose.Schema<UserDocument>({
   },
 });
 
+userSchema.statics.findByEmail = function (
+  this: Model<UserDocument>,
+  email: string
+) {
+  return this.findOne({ email });
+};
+
 userSchema.pre("save", function (this: UserDocument, next) {
   if (this.isModified("password")) {
     return hashPassword(this, next);
@@ -84,4 +104,4 @@ userSchema.post("save", function (this: Partial<UserDocument>, doc, next) {
   next();
 });
 
-export default mongoose.model<UserDocument>("user", userSchema);
+export default mongoose.model<UserDocument, UserModel>("user", userSchema);

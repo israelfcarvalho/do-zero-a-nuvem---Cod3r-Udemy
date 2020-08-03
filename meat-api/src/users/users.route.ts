@@ -14,13 +14,14 @@ export default class UserRoute extends ModelRouter<UserDocument> {
     return this._router;
   }
 
-  findByEmail = (req: Request, res: Response, next: NextFunction) => {
+  findAllByEmail = (req: Request, res: Response, next: NextFunction) => {
     const email = <string>req.query.email;
 
-    console.log({ email });
-
     if (email) {
-      User.find({ email }).then(this.render(res, next)).catch(next);
+      User.findByEmail(email)
+        .then((user) => (user ? [user] : null))
+        .then(this.render(res, next))
+        .catch(next);
     } else {
       next();
     }
@@ -29,7 +30,7 @@ export default class UserRoute extends ModelRouter<UserDocument> {
   protected applyRoutes() {
     this._router.param("id", this.idValidator);
 
-    this._router.get("/users", [this.findByEmail, this.findAll]);
+    this._router.get("/users", [this.findAllByEmail, this.findAll]);
 
     this._router.get("/users/:id", this.findById);
 
