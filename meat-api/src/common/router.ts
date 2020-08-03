@@ -75,10 +75,24 @@ abstract class Router {
     res.status(parsedError.status).json(parsedError.error);
   };
 
+  protected envelope(document: Document) {
+    return document;
+  }
+
+  protected renderAll(res: Response, next: NextFunction) {
+    return (documents: Array<Document>) => {
+      const _documents = documents.map((document) => {
+        return this.envelope(document);
+      });
+
+      res.json(_documents);
+    };
+  }
+
   protected render(res: Response, next: NextFunction) {
-    return (document: Document | Document[] | null) => {
+    return (document: Document | null) => {
       if (document) {
-        res.json(document);
+        res.json(this.envelope(document));
       } else {
         res.send(404);
       }

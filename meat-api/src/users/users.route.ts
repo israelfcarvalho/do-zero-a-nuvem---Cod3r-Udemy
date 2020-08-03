@@ -20,7 +20,7 @@ export default class UserRoute extends ModelRouter<UserDocument> {
     if (email) {
       User.findByEmail(email)
         .then((user) => (user ? [user] : []))
-        .then(this.render(res, next))
+        .then(this.renderAll(res, next))
         .catch(next);
     } else {
       next();
@@ -30,17 +30,17 @@ export default class UserRoute extends ModelRouter<UserDocument> {
   protected applyRoutes() {
     this._router.param("id", this.idValidator);
 
-    this._router.get("/users", [this.findAllByEmail, this.findAll]);
+    this._router.get(`${this.basePath}`, [this.findAllByEmail, this.findAll]);
 
-    this._router.get("/users/:id", this.findById);
+    this._router.get(`${this.basePath}/:id`, this.findById);
 
-    this._router.post("/users", this.save);
+    this._router.post(`${this.basePath}`, this.save);
 
-    this._router.put("/users/:id", this.replace);
+    this._router.put(`${this.basePath}/:id`, this.replace);
 
-    this._router.patch("/users/:id", this.update);
+    this._router.patch(`${this.basePath}/:id`, this.update);
 
-    this._router.delete("/users/:id", this.delete);
+    this._router.delete(`${this.basePath}/:id`, this.delete);
 
     this._router.use(this.errorMiddleware);
   }

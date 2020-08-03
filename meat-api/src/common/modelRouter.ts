@@ -4,11 +4,22 @@ import { RouterOptions, NextFunction, Request, Response } from "express";
 
 abstract class ModelRouter<T extends Document> extends Router {
   private model: Model<T>;
+  protected basePath: string;
 
   constructor(model: Model<T>, options?: RouterOptions) {
     super(options);
 
     this.model = model;
+    this.basePath = `/${model.collection.name}`;
+  }
+
+  protected envelope(document: T) {
+    const _links = {
+      self: `${this.basePath}/${document._id}`,
+    };
+    const _document = { _links, ...document.toJSON() };
+
+    return _document;
   }
 
   protected prepareOne(query: DocumentQuery<T | null, T, {}>) {
@@ -47,7 +58,7 @@ abstract class ModelRouter<T extends Document> extends Router {
   }
 
   protected findAll = (req: Request, res: Response, next: NextFunction) => {
-    this.model.find().then(this.render(res, next)).catch(next);
+    this.model.find().then(this.renderAll(res, next)).catch(next);
   };
 
   protected findById = (req: Request, res: Response, next: NextFunction) => {

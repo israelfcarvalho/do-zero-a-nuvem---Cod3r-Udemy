@@ -15,6 +15,14 @@ export default class RestaurantRoute extends ModelRouter<RestaurantDocument> {
     return this._router;
   }
 
+  protected envelope(document: RestaurantDocument) {
+    const _document = super.envelope(document);
+
+    _document._links.menu = `${this.basePath}/${document._id}/menu`;
+
+    return _document;
+  }
+
   private findMenu(req: Request, res: Response, next: NextFunction) {
     const _id = req.params.id;
 
@@ -54,21 +62,21 @@ export default class RestaurantRoute extends ModelRouter<RestaurantDocument> {
   protected applyRoutes() {
     this._router.param("id", this.idValidator);
 
-    this._router.get("/restaurants", this.findAll);
+    this._router.get(`${this.basePath}`, this.findAll);
 
-    this._router.get("/restaurants/:id", this.findById);
+    this._router.get(`${this.basePath}/:id`, this.findById);
 
-    this._router.post("/restaurants", this.save);
+    this._router.post(`${this.basePath}`, this.save);
 
-    this._router.put("/restaurants/:id", this.replace);
+    this._router.put(`${this.basePath}/:id`, this.replace);
 
-    this._router.patch("/restaurants/:id", this.update);
+    this._router.patch(`${this.basePath}/:id`, this.update);
 
-    this._router.delete("/restaurants/:id", this.delete);
+    this._router.delete(`${this.basePath}/:id`, this.delete);
 
-    this._router.get("/restaurants/:id/menu", this.findMenu);
+    this._router.get(`${this.basePath}/:id/menu`, this.findMenu);
 
-    this._router.put("/restaurants/:id/menu", this.replaceMenu);
+    this._router.put(`${this.basePath}/:id/menu`, this.replaceMenu);
 
     this._router.use(this.errorMiddleware);
   }
