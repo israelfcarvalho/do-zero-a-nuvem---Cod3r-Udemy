@@ -19,7 +19,7 @@ export default class UserRoute extends ModelRouter<UserDocument> {
 
     if (email) {
       User.findByEmail(email)
-        .then((user) => (user ? [user] : null))
+        .then((user) => (user ? [user] : []))
         .then(this.render(res, next))
         .catch(next);
     } else {
