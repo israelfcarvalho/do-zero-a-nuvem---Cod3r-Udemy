@@ -4,7 +4,7 @@ import { RouterOptions, NextFunction, Request, Response } from "express";
 
 abstract class ModelRouter<T extends Document> extends Router {
   private model: Model<T>;
-  protected basePath: string;
+  basePath: string;
 
   constructor(model: Model<T>, options?: RouterOptions) {
     super(options);

@@ -4,7 +4,7 @@ import ModelRouter from "../common/modelRouter";
 
 import Restaurant, { RestaurantDocument } from "./restaurants.model";
 
-export default class RestaurantRoute extends ModelRouter<RestaurantDocument> {
+export default class RestaurantsRoute extends ModelRouter<RestaurantDocument> {
   constructor(options?: RouterOptions) {
     super(Restaurant, options);
 

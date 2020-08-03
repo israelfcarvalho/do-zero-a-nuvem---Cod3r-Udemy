@@ -14,7 +14,11 @@ export default class UserRoute extends ModelRouter<UserDocument> {
     return this._router;
   }
 
-  findAllByEmail = (req: Request, res: Response, next: NextFunction) => {
+  private findAllByEmail = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     const email = <string>req.query.email;
 
     if (email) {

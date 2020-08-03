@@ -3,15 +3,18 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 
 import { environment } from "../common/environment";
-import usersRoute from "../users/users.route";
+import UsersRoute from "../users/users.route";
 import RestaurantsRoute from "../restaurants/restaurants.route";
 import ReviewsRoute from "../reviews/reviews.route";
 
-const routes = [
-  new usersRoute().router,
-  new RestaurantsRoute().router,
-  new ReviewsRoute().router,
-];
+const usersRoute = new UsersRoute();
+const restaurantsRoute = new RestaurantsRoute();
+const reviewsRoute = new ReviewsRoute();
+
+const routes = [usersRoute, restaurantsRoute, reviewsRoute].map((route) => ({
+  route: route.router,
+  path: route.basePath,
+}));
 
 export class Server {
   constructor() {
@@ -26,7 +29,14 @@ export class Server {
         this.application.use(bodyParser.urlencoded({ extended: false }));
         this.application.use(bodyParser.json());
         routes.forEach((route) => {
-          this.application.use(route);
+          this.application.use(route.route);
+        });
+
+        this.application.use((req, res, next) => {
+          const message = `Route '${req.path}' does not exists. Below are the possible routes!`;
+          const routesLinks = routes.map((route) => `${route.path}`);
+
+          res.json({ message, routesLinks });
         });
 
         this.application.listen(environment.server.port, () => {
