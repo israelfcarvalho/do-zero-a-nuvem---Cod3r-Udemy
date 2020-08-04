@@ -1,10 +1,11 @@
-import Router from "./router";
+import Router, { envelopeAllOptions, EnvelopeAllWrapper } from "./router";
 import { Model, Document, isValidObjectId, DocumentQuery } from "mongoose";
 import { RouterOptions, NextFunction, Request, Response } from "express";
 
 abstract class ModelRouter<T extends Document> extends Router {
   private model: Model<T>;
-  basePath: string;
+  private pageSize = 4;
+  public basePath: string;
 
   constructor(model: Model<T>, options?: RouterOptions) {
     super(options);
@@ -20,6 +21,29 @@ abstract class ModelRouter<T extends Document> extends Router {
     const _document = { _links, ...document.toJSON() };
 
     return _document;
+  }
+
+  protected envelopeAll(documents: Array<T>, options: envelopeAllOptions) {
+    const { page, count, _links } = options;
+
+    if (page) {
+      const nextPage = page + 1;
+      const previousPage = page - 1;
+
+      if (page * this.pageSize < count) {
+        _links.next = `${this.basePath}?page=${nextPage}`;
+      }
+
+      if (previousPage > 0) {
+        _links.previous = `${this.basePath}?page=${previousPage}`;
+      }
+    }
+
+    return {
+      ...options,
+      _links,
+      itens: documents,
+    };
   }
 
   protected prepareOne(query: DocumentQuery<T | null, T, {}>) {
@@ -58,7 +82,39 @@ abstract class ModelRouter<T extends Document> extends Router {
   }
 
   protected findAll = (req: Request, res: Response, next: NextFunction) => {
-    this.model.find().then(this.renderAll(res, next)).catch(next);
+    const url = req.url;
+    const page = parseInt(<string>req.query.page) || 1;
+    const _page = page > 0 ? page : 1;
+
+    const skip = (_page - 1) * this.pageSize;
+
+    this.model
+      .count({})
+      .then((count) => {
+        const isInvalidPage = (page - 1) * this.pageSize >= count;
+
+        if (isInvalidPage) {
+          const hasIncompletePages = count % this.pageSize !== 0;
+          const fullPages = Math.floor(count / this.pageSize);
+          const lastValidPage = hasIncompletePages ? fullPages + 1 : fullPages;
+
+          res.status(400).json({
+            message: "Invalid page!!",
+            itensCount: count,
+            pageSize: this.pageSize,
+            lastValidPage,
+          });
+        } else {
+          this.model
+            .find()
+            .skip(skip)
+            .limit(this.pageSize)
+            .then(
+              this.renderAll(res, next, { page, count, _links: { self: url } })
+            );
+        }
+      })
+      .catch(next);
   };
 
   protected findById = (req: Request, res: Response, next: NextFunction) => {

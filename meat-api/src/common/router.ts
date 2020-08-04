@@ -7,6 +7,22 @@ import {
 } from "express";
 import { Document } from "mongoose";
 
+export interface EnvelopeAllWrapper {
+  _links: {
+    previous?: string;
+    self: string;
+    next?: string;
+  };
+  page: number;
+  count: number;
+  itens: Array<Document>;
+}
+
+export type envelopeAllOptions = Pick<
+  EnvelopeAllWrapper,
+  "page" | "count" | "_links"
+>;
+
 abstract class Router {
   protected _router: expressRouter;
 
@@ -79,13 +95,28 @@ abstract class Router {
     return document;
   }
 
-  protected renderAll(res: Response, next: NextFunction) {
+  protected envelopeAll(
+    documents: Array<Document>,
+    options: envelopeAllOptions
+  ): EnvelopeAllWrapper {
+    return {
+      ...options,
+      _links: { self: "/" },
+      itens: documents,
+    };
+  }
+
+  protected renderAll(
+    res: Response,
+    next: NextFunction,
+    options: envelopeAllOptions
+  ) {
     return (documents: Array<Document>) => {
       const _documents = documents.map((document) => {
         return this.envelope(document);
       });
 
-      res.json(_documents);
+      res.json(this.envelopeAll(_documents, options));
     };
   }
 
