@@ -89,7 +89,7 @@ abstract class ModelRouter<T extends Document> extends Router {
     const skip = (_page - 1) * this.pageSize;
 
     this.model
-      .count({})
+      .countDocuments({})
       .then((count) => {
         const isInvalidPage = (page - 1) * this.pageSize >= count;
 
