@@ -2,8 +2,6 @@ import mongoose, {
   Query,
   Model,
   DocumentQuery,
-  Document,
-  model,
 } from "mongoose";
 
 import { hashPassword } from "../common/utils";

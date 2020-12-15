@@ -101,7 +101,6 @@ abstract class Router {
   ): EnvelopeAllWrapper {
     return {
       ...options,
-      _links: { self: "/" },
       itens: documents,
     };
   }
